@@ -1,0 +1,132 @@
+/* Tam ekran siyah ve scroll vs iptal */
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background-color: #000; /* kesin siyah */
+}
+
+/* SPLASH (intro) */
+.splash-screen {
+  height: 100vh;            /* tüm görünür ekranı kapla */
+  width: 100vw;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #000;   /* tam siyah */
+  overflow: hidden;
+}
+
+/* Başlık: South Park tarzına yakın, yumuşak fade ve hafif büyüme */
+@keyframes fadeBlink {
+  0%   { opacity: 0; transform: translateY(6px) scale(0.995); }
+  20%  { opacity: 1; transform: translateY(0) scale(1); }
+  60%  { opacity: 1; transform: translateY(0) scale(1); }
+  100% { opacity: 0; transform: translateY(-6px) scale(0.995); }
+}
+
+.splash-title {
+  color: #fff;
+  font-size: clamp(1.8rem, 3.5vw, 3rem); /* responsive boyut */
+  font-family: "Segoe UI", Roboto, Arial, sans-serif;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-align: center;
+  margin: 0 1rem;
+  animation: fadeBlink 2.6s ease-in-out forwards; /* tek döngü gibi görünüp 3s sonra kaybolur */
+  /* not: forwards -> animasyon bittikten sonra son durum (opacity:0) korunur,
+     fakat React 3s sonra DOM'u değiştiriyor; bu birleşim estetik bir geçiş sağlar */
+  will-change: opacity, transform;
+}
+
+/* MAIN ekran (splash kaybolunca görünecek) */
+.main-screen {
+ display: flex;
+  flex-direction: column; /* 3 yatay bölüm */
+  height: 100vh;
+  width: 100%;
+  background-color: black;
+  color: white;
+  padding: 16px;
+}
+
+/* ChessboardComponent için temel placeholder stilleri (çoğu zaman component kendi stilini kullanır) */
+.chessboard-placeholder {
+  width: 640px;
+  max-width: 95vw;
+  height: auto;
+  background: #111;
+  border-radius: 8px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #ddd;
+  padding: 18px;
+}
+
+.chess-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+}
+
+.toolbar {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  margin-bottom: 30px;
+  margin-top: 28px;
+}
+
+.toolbar button {
+
+background-color: #1f1e1e85;
+color: white;
+border-radius: 12px;
+cursor: pointer;
+font-weight: bold;
+transition: all 0.2s ease;
+padding: 8px 16px;
+border: none;
+}
+
+.toolbar button:hover{
+background-color: #464242dd;
+border: none;
+transform: scale(1.05);
+}
+
+
+.game-area {
+  display: flex;
+  flex: 1 1 auto;
+  gap: 20px;
+  justify-content: flex-start; /* soldan başla */
+  align-items: flex-end;       /* dikeyde alta yasla */
+  width: 100%;
+}
+
+
+.board {
+  flex: 2;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end; /* board alt hizaya */
+}
+.ai-coach {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start; /* AI üst hizaya */
+  flex-direction: column;
+}
+
+
+.previous-move {
+  color: white;
+  flex: 0 0 150px; /* sabit yükseklik */
+  margin-top: 16px;
+  overflow-y: auto;
+  flex-wrap: wrap; /* hamleler taşarsa alt satıra geçer */
+}
