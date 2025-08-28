@@ -1,55 +1,51 @@
-import React, { useState, useEffect } from "react";
-import "../App.css";                       // App.css'i burada import et
+import React, { useState, useEffect, useRef } from "react";
+import "../App.css";
 import ChessboardComponent from "../components/ChessboardComponent";
-import { Chessboard } from "react-chessboard";
 
 function Home() {
-    const [showSplash, setShowSplash] = useState(true);
+  const [showSplash, setShowSplash] = useState(true);
+  const chessRef = useRef(null); // ChessboardComponent'e ref
 
-    useEffect(() => {
-        const timer = setTimeout(() => setShowSplash(false), 3000); // 3sn sonra geçiş
-        return () => clearTimeout(timer);
-    }, []);
+  useEffect(() => {
+    const timer = setTimeout(() => setShowSplash(false), 3000);
+    return () => clearTimeout(timer);
+  }, []);
 
-    if (showSplash) {
-        return (
-            <div className="splash-screen">
-                <h1 className="splash-title">Chess Uygulamasına Hoş Geldiniz...</h1>
-            </div>
-        );
-    }
-
+  if (showSplash) {
     return (
-        <div className="main-screen">
-
-            <div className="toolbar">
-                <button>Hint</button>
-                <button>Options</button>
-                <button>Openings</button>
-                <button>Reset</button>
-                <button>Undo</button>
-            </div>
-
-            <div className="game-area">
-                <div className="board">
-                    <div className="chess-container">
-                        <ChessboardComponent />
-                    </div>
-                </div>
-                <div className="ai-coach">
-
-                </div>
-            </div>
-
-
-            <div className="previous-move">
-
-            </div>
-
-
-
-        </div>
+      <div className="splash-screen">
+        <h1 className="splash-title">Chess Uygulamasına Hoş Geldiniz...</h1>
+      </div>
     );
+  }
+
+  return (
+    <div className="main-screen">
+      <div className="toolbar">
+        <button>Hint</button>
+        <button>Options</button>
+        <button>Openings</button>
+        <button onClick={() => chessRef.current && chessRef.current.resetGame()}>
+          Reset
+        </button>
+        <button>Undo</button>
+      </div>
+
+      <div className="game-area">
+        <div className="board">
+          <div className="chess-container">
+            <ChessboardComponent ref={chessRef} />
+          </div>
+        </div>
+
+        <div className="ai-coach">
+          <h1>ai coach</h1>
+        </div>
+      </div>
+
+      <div className="previous-move"></div>
+    </div>
+  );
 }
 
 export default Home;
