@@ -43,7 +43,39 @@ function Home() {
         </div>
       </div>
 
-      <div className="previous-move"></div>
+      
+      <div className="scrollable-bar">
+        <div className="move">e4</div>
+        <div className="move">e5</div>
+        <div className="move">Nf3</div>
+        <div className="move">Nc6</div>
+        <div className="move">Bb5</div>
+        <div className="move">a6</div>
+        <div className="move">Ba4</div>
+        <div className="move">Nf6</div>
+        <div className="move">O-O</div>
+        <div className="move">Be7</div>
+        <div className="move">e4</div>
+        <div className="move">e5</div>
+        <div className="move">Nf3</div>
+        <div className="move">Nc6</div>
+        <div className="move">Bb5</div>
+        <div className="move">a6</div>
+        <div className="move">Ba4</div>
+        <div className="move">Nf6</div>
+        <div className="move">O-O</div>
+        <div className="move">Be7</div><div className="move">e4</div>
+        <div className="move">e5</div>
+        <div className="move">Nf3</div>
+        <div className="move">Nc6</div>
+        <div className="move">Bb5</div>
+        <div className="move">a6</div>
+        <div className="move">Ba4</div>
+        <div className="move">Nf6</div>
+        <div className="move">O-O</div>
+        <div className="move">Be7</div>
+      </div>
+
     </div>
   );
 }

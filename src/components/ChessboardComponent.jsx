@@ -16,8 +16,8 @@ const ChessboardComponent = forwardRef((props, ref) => {
   if (!move) return console.log("Geri alınacak hamle yok!");
 
   console.log("Hamle geri alındı:", move);
-  setGame(new Chess(game.fen())); // state’i güncelle
-  setHistory(prev => prev.slice(0, -1));
+  setGame(new Chess(game.fen())); // state’i güncelle yeni obje oluştur sonra oyunun tüm geçmiş hamlelerini içine at
+  setHistory(prev => prev.slice(0, -1)); //son hamleyi historyden sil
 }
 
 
@@ -82,7 +82,7 @@ const ChessboardComponent = forwardRef((props, ref) => {
           console.log(`Taş bırakıldı: ${piece} from ${sourceSquare}`);
         }}
         boardOrientation="white"
-        boardWidth={640}
+        boardWidth={560}
         animationDuration={200}
         arePiecesDraggable={true}
         arePremovesAllowed={false}
