@@ -1,4 +1,3 @@
-
 html, body, #root {
   height: 100vh;
   width: 100vw;
@@ -8,16 +7,14 @@ html, body, #root {
   overflow: hidden;
 }
 
-
 .main-screen {
   display: flex;
   flex-direction: column;
-  height: 100vh;       /* tüm ekranı kapla */
+  height: 100vh;
   padding: 16px;
   background-color: black;
   color: white;
 }
-
 
 .splash-screen {
   height: 100vh;
@@ -29,7 +26,6 @@ html, body, #root {
   overflow: hidden;
 }
 
-/* Başlık animasyonu */
 @keyframes fadeBlink {
   0%   { opacity: 0; transform: translateY(6px) scale(0.995); }
   20%  { opacity: 1; transform: translateY(0) scale(1); }
@@ -54,7 +50,7 @@ html, body, #root {
   display: flex;
   justify-content: center;
   gap: 20px;
-  margin-bottom: 16px;
+  margin-bottom: 24px;  /* üst çizgiye değmesin diye artırıldı */
 }
 
 .toolbar button {
@@ -73,31 +69,32 @@ html, body, #root {
   transform: scale(1.05);
 }
 
-/* Game area: Board ve AI coach yan yana */
+/* Game area */
 .game-area {
   display: flex;
-  flex: 1;                 /* toolbar ve previous-move dışında kalan alanı kapla */
+  flex: 1;
   gap: 20px;
   justify-content: center;
-  align-items: flex-start;  /* board üstte başlasın */
+  align-items: flex-start;
   width: 100%;
 }
 
 /* Board container */
 .board {
-  flex: 0 0 auto;           /* esnek büyümesin */
+  flex: 0 0 auto;
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
 .chess-container {
-  width: 640px;             /* board genişliği */
-  max-width: 95vw;
-  height: 640px;
-   display: flex;
+  width: 560px;        
+  max-width: 90vw;
+  height: 560px;       
+  display: flex;
   justify-content: center;
   align-items: center;
+  margin-left: 100px;
 }
 
 /* AI coach */
@@ -105,16 +102,53 @@ html, body, #root {
   flex: 1;
   display: flex;
   flex-direction: column;
-  justify-content: flex-start; /* üstten başlasın */
+  justify-content: flex-start;
   align-items: flex-start;
   color: white;
+  margin-left: 50px;
 }
 
-/* Previous moves panel */
-.previous-move {
-  flex: 0 0 150px;          /* alt panel sabit */
-  overflow-y: auto;
-  margin-top: 16px;
+/* Scrollable previous moves bar */
+.scrollable-bar {
+  width: calc(100% - 40px);
+  margin: 0 auto;
+  margin-top: 24px;      /* toolbar’dan biraz daha uzak */
+  border-top: 1px solid white;
+  display: flex;
+  overflow-x: auto;       /* yana scroll */
+  gap: 20px;              /* hamleler arası geniş boşluk */
+  padding: 16px 0;        /* yüksekliği artırmak için padding */
+  height: auto;
+  align-items: center;
+  scrollbar-width: thin;
+  margin-bottom: 10px;
+}
+
+.scrollable-bar::-webkit-scrollbar {
+  height: 10px;
+}
+
+.scrollable-bar::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 3px;
+}
+
+.scrollable-bar::-webkit-scrollbar-thumb:hover {
+  background: #aaa;
+}
+
+.move {
   color: white;
-  flex-wrap: wrap;
+  font-size: 16px;
+  padding: 8px 16px;      /* kutular daha büyük */
+  border-radius: 8px;
+  white-space: nowrap;
+}
+
+.move:nth-child(odd) {
+  background-color: rgba(255,255,255,0.1);
+}
+
+.move:nth-child(even) {
+  background-color: rgba(255,255,255,0.2);
 }
