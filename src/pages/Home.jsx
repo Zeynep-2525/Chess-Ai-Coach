@@ -28,7 +28,7 @@ function Home() {
         <button onClick={() => chessRef.current && chessRef.current.resetGame()}>
           Reset
         </button>
-        <button>Undo</button>
+        <button onClick={() => chessRef.current && chessRef.current.undoMove()}>Undo</button>
       </div>
 
       <div className="game-area">

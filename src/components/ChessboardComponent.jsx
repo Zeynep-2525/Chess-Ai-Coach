@@ -3,15 +3,27 @@ import { Chessboard } from "react-chessboard";
 import { Chess } from "chess.js";
 
 const ChessboardComponent = forwardRef((props, ref) => {
-  const [game, setGame] = useState(new Chess());
+  const [game, setGame] = useState(new Chess()); //hooklar
+  const [history, setHistory] = useState([]);
 
   function resetGame() {
     console.log("Reset game called");
     setGame(new Chess());
   }
 
+  function undoMove() {
+  const move = game.undo(); // direkt mevcut game objesini kullan
+  if (!move) return console.log("Geri alınacak hamle yok!");
+
+  console.log("Hamle geri alındı:", move);
+  setGame(new Chess(game.fen())); // state’i güncelle
+  setHistory(prev => prev.slice(0, -1));
+}
+
+
   useImperativeHandle(ref, () => ({
-    resetGame
+    resetGame,
+    undoMove,
   }));
 
   function onDrop(sourceSquare, targetSquare, piece) {
@@ -32,6 +44,9 @@ const ChessboardComponent = forwardRef((props, ref) => {
       if (move) {
         console.log("Hamle başarılı, board güncelleniyor");
         setGame(gameCopy);
+
+        setHistory(prevHistory => [...prevHistory, {from: sourceSquare, to:targetSquare}]); //hamle yaptıkça history güncellenecek- ...prevHistory bu arrayin tüm elemanları kullanılacak demek(spread operatörü)
+       
         return true;
       } else {
         console.log("Hamle geçersiz");
