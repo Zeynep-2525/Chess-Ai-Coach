@@ -24,6 +24,7 @@ const ChessboardComponent = forwardRef((props, ref) => {
   useImperativeHandle(ref, () => ({
     resetGame,
     undoMove,
+    getHistory: () => history,
   }));
 
   function onDrop(sourceSquare, targetSquare, piece) {
@@ -45,7 +46,11 @@ const ChessboardComponent = forwardRef((props, ref) => {
         console.log("Hamle başarılı, board güncelleniyor");
         setGame(gameCopy);
 
-        setHistory(prevHistory => [...prevHistory, {from: sourceSquare, to:targetSquare}]); //hamle yaptıkça history güncellenecek- ...prevHistory bu arrayin tüm elemanları kullanılacak demek(spread operatörü)
+        const newHistory = [...history, {from: sourceSquare, to:targetSquare, san:move.san}];
+
+        setHistory(prevHistory => [...prevHistory, {from: sourceSquare, to:targetSquare, san:move.san}]); //hamle yaptıkça history güncellenecek- ...prevHistory bu arrayin tüm elemanları kullanılacak demek(spread operatörü)
+
+        if(props.onHistoryChange) props.onHistoryChange(newHistory);
        
         return true;
       } else {
