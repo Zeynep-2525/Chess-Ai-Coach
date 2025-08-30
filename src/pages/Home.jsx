@@ -4,7 +4,8 @@ import ChessboardComponent from "../components/ChessboardComponent";
 
 function Home() {
   const [showSplash, setShowSplash] = useState(true);
-  const chessRef = useRef(null); // ChessboardComponent'e ref
+  const chessRef = useRef(null);
+  const [history, setHistory] = useState([]);
 
   useEffect(() => {
     const timer = setTimeout(() => setShowSplash(false), 3000);
@@ -25,16 +26,14 @@ function Home() {
         <button>Hint</button>
         <button>Options</button>
         <button>Openings</button>
-        <button onClick={() => chessRef.current && chessRef.current.resetGame()}>
-          Reset
-        </button>
+        <button onClick={() => chessRef.current && chessRef.current.resetGame()}>Reset</button>
         <button onClick={() => chessRef.current && chessRef.current.undoMove()}>Undo</button>
       </div>
 
       <div className="game-area">
         <div className="board">
           <div className="chess-container">
-            <ChessboardComponent ref={chessRef} />
+            <ChessboardComponent ref={chessRef} onHistoryChange={setHistory} />
           </div>
         </div>
 
@@ -43,39 +42,13 @@ function Home() {
         </div>
       </div>
 
-      
       <div className="scrollable-bar">
-        <div className="move">e4</div>
-        <div className="move">e5</div>
-        <div className="move">Nf3</div>
-        <div className="move">Nc6</div>
-        <div className="move">Bb5</div>
-        <div className="move">a6</div>
-        <div className="move">Ba4</div>
-        <div className="move">Nf6</div>
-        <div className="move">O-O</div>
-        <div className="move">Be7</div>
-        <div className="move">e4</div>
-        <div className="move">e5</div>
-        <div className="move">Nf3</div>
-        <div className="move">Nc6</div>
-        <div className="move">Bb5</div>
-        <div className="move">a6</div>
-        <div className="move">Ba4</div>
-        <div className="move">Nf6</div>
-        <div className="move">O-O</div>
-        <div className="move">Be7</div><div className="move">e4</div>
-        <div className="move">e5</div>
-        <div className="move">Nf3</div>
-        <div className="move">Nc6</div>
-        <div className="move">Bb5</div>
-        <div className="move">a6</div>
-        <div className="move">Ba4</div>
-        <div className="move">Nf6</div>
-        <div className="move">O-O</div>
-        <div className="move">Be7</div>
+        {history.map((move, index) => (
+          <div key={index} className="move">
+            {move.from} → {move.to} ({move.san})
+          </div>
+        ))}
       </div>
-
     </div>
   );
 }
