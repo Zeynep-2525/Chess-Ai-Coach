@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
 import "../App.css";
 import ChessboardComponent from "../components/ChessboardComponent";
+import avatar from "../images/avataaars.png";
+
 
 function Home() {
   const [showSplash, setShowSplash] = useState(true);
@@ -8,7 +10,7 @@ function Home() {
   const [history, setHistory] = useState([]);
 
   useEffect(() => {
-    const timer = setTimeout(() => setShowSplash(false), 3000);
+    const timer = setTimeout(() => setShowSplash(false), 3000); //3 saniye yanıp sönen ekran
     return () => clearTimeout(timer);
   }, []);
 
@@ -38,7 +40,10 @@ function Home() {
         </div>
 
         <div className="ai-coach">
-          <h1>ai coach</h1>
+          <div className="coach">
+            <img src={avatar} alt="avatar"  className="image"/>
+          </div>
+         
         </div>
       </div>
 
