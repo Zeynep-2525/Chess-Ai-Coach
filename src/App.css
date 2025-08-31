@@ -102,8 +102,8 @@ html, body, #root {
   flex: 1;
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
-  align-items: flex-start;
+  justify-content: flex-end;
+  align-items: flex-end;
   color: white;
   margin-left: 50px;
 }
@@ -151,4 +151,10 @@ html, body, #root {
 
 .move:nth-child(even) {
   background-color: rgba(255,255,255,0.2);
+}
+
+.image {
+  width: 200px;
+  height: 200px;
+  align-items: center;
 }
