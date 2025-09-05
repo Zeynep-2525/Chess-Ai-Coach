@@ -178,4 +178,31 @@ html, body, #root {
   gap: 15px;
 }
 
+.dropdown{
+  position: absolute; /*position: absolute; → dropdown menüyü butonun üstüne ve altına tam yerleştirmek için.*/
+  background-color: #534b4b;
+  border-radius: 8px;
+  padding: 8px 0;
+  min-width: 120px;
+  z-index: 100;
+  opacity: 0;
+  transition: opacity 0.3 ease;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.dropdown.show{
+  opacity: 1;
+}
+
+.dropdown-item{
+  padding: 8px 16px;
+  cursor: pointer;
+  color: white;
+}
+
+.dropdown-item:hover{
+  background-color: #959292cd;
+}
 
