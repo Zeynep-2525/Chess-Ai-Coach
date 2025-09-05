@@ -1,12 +1,35 @@
-# React + Vite
+# Chess AI Coach 🎯
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## 📌 Proje Amacı
+Bu projenin amacı:  
+- Kullanıcıların tarayıcı üzerinden satranç oynayabilmesi,  
+- Yapay zeka (AI) desteği ile **en iyi hamle önerilerini** alabilmesi,  
+- Açılış hamlelerini ve satranç stratejilerini öğrenebilmesi.  
 
-Currently, two official plugins are available:
+Uzun vadede amaç: **AI destekli bir koç** gibi çalışarak oyuncuya öneriler sunmak.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+---
 
-## Expanding the ESLint configuration
+## ✅ Şu Ana Kadar Yapılanlar
+- **Frontend (React)** oluşturuldu.  
+- **Satranç tahtası (react-chessboard + chess.js)** entegre edildi.  
+- **Hamle geçmişi** kaydediliyor ve ekranda görünüyor.  
+- **Undo / Reset** fonksiyonları eklendi.  
+- **Toolbar** (Hint, Options, Openings, Reset, Undo) tasarlandı.  
+- **Options menüsü için dropdown** oluşturuldu.  
+- **Splash screen (karşılama ekranı)** eklendi.  
+- **AI Coach bölümü** için avatar ve speech bubble componentleri hazırlandı.  
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+---
+
+## 🔜 Sonraki Adımlar
+- **Openings (açılışlar)** listesini JSON / backend üzerinden almak.  
+- **Backend (FastAPI)** ile API kurmak.  
+  - Açılış hamleleri için endpoint.  
+  - İleride en iyi hamle önerisi için AI entegrasyonu.  
+- **AI hamle önerisi**: Chess motoru (örn. Stockfish) veya yapay zeka modelinden alınan öneriyi frontend’de göstermek.  
+
+---
+
+## 📖 Not
+Proje şu an temel satranç işlevlerini destekliyor. Backend ve AI entegrasyonu sonrası gerçek "koç" işlevi kazandırılacak.
