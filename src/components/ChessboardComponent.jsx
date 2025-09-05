@@ -7,18 +7,29 @@ const ChessboardComponent = forwardRef((props, ref) => {
   const [history, setHistory] = useState([]);
 
   function resetGame() {
-    console.log("Reset game called");
+    console.log("Reset game called"); //satranç tahtasındaki pozisyonlar sıfırlanır
     setGame(new Chess());
+
+    setHistory([]);
+    if (props.onHistoryChange) {  //geçmiş sıfırlanır
+      props.onHistoryChange([]);
+    }
   }
 
   function undoMove() {
-  const move = game.undo(); // direkt mevcut game objesini kullan
-  if (!move) return console.log("Geri alınacak hamle yok!");
+    const move = game.undo(); // direkt mevcut game objesini kullan
+    if (!move) return console.log("Geri alınacak hamle yok!");
 
-  console.log("Hamle geri alındı:", move);
-  setGame(new Chess(game.fen())); // state’i güncelle yeni obje oluştur sonra oyunun tüm geçmiş hamlelerini içine at
-  setHistory(prev => prev.slice(0, -1)); //son hamleyi historyden sil
-}
+    console.log("Hamle geri alındı:", move);
+    setGame(new Chess(game.fen())); // state’i güncelle yeni obje oluştur sonra oyunun tüm geçmiş hamlelerini içine at
+    setHistory(prev => {
+      const newHistory = prev.slice(0, -1);
+      if (props.onHistoryChange) {
+        props.onHistoryChange(newHistory); // parent componente gönder
+      }
+      return newHistory; //state i güncelle
+    });
+  }
 
 
   useImperativeHandle(ref, () => ({
@@ -30,28 +41,28 @@ const ChessboardComponent = forwardRef((props, ref) => {
   function onDrop(sourceSquare, targetSquare, piece) {
     console.log(`Hamle deneniyor: ${sourceSquare} -> ${targetSquare}`);
     console.log("Mevcut board pozisyonu:", game.fen());
-    
+
     const gameCopy = new Chess(game.fen());
-    
+
     try {
       const move = gameCopy.move({
         from: sourceSquare,
         to: targetSquare,
         promotion: "q",
       });
-      
+
       console.log("Hamle sonucu:", move);
-      
+
       if (move) {
         console.log("Hamle başarılı, board güncelleniyor");
         setGame(gameCopy);
 
-        const newHistory = [...history, {from: sourceSquare, to:targetSquare, san:move.san}];
+        const newHistory = [...history, { from: sourceSquare, to: targetSquare, san: move.san }];
 
-        setHistory(prevHistory => [...prevHistory, {from: sourceSquare, to:targetSquare, san:move.san}]); //hamle yaptıkça history güncellenecek- ...prevHistory bu arrayin tüm elemanları kullanılacak demek(spread operatörü)
+        setHistory(prevHistory => [...prevHistory, { from: sourceSquare, to: targetSquare, san: move.san }]); //hamle yaptıkça history güncellenecek- ...prevHistory bu arrayin tüm elemanları kullanılacak demek(spread operatörü)
 
-        if(props.onHistoryChange) props.onHistoryChange(newHistory);
-       
+        if (props.onHistoryChange) props.onHistoryChange(newHistory);
+
         return true;
       } else {
         console.log("Hamle geçersiz");
@@ -68,7 +79,7 @@ const ChessboardComponent = forwardRef((props, ref) => {
     console.log("ChessboardComponent mounted");
     console.log("Chess.js version:", Chess.version || "version bilgisi yok");
     console.log("Initial game position:", game.fen());
-    
+
     // Test hamle dene
     const testGame = new Chess();
     const testMove = testGame.move('e4');

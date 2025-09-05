@@ -158,3 +158,24 @@ html, body, #root {
   height: 200px;
   align-items: center;
 }
+
+/* SpeechBubble.css */
+.speech-bubble-container {
+  margin: 10px;
+}
+
+.speech-bubble {
+  display: inline-block;
+  padding: 10px 15px;
+  border-radius: 15px;
+  background-color: #5c5353a5;
+  max-width: 250px;
+}
+
+.coach{
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+
