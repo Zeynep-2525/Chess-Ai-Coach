@@ -1,6 +1,5 @@
-import React, { useState, useRef, useEffect } from "react";
-
-export default function Toolbar({ onReset, onUndo }) {
+import { useState, useRef, useEffect } from "react";
+export default function Toolbar({ onReset, onUndo, onHint }) {
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef(null);
 
@@ -19,9 +18,8 @@ export default function Toolbar({ onReset, onUndo }) {
 
   return (
     <div className="toolbar">
-      <button>Hint</button>
+      <button onClick={onHint}>Hint</button>
 
-      
       <div ref={dropdownRef} style={{ position: "relative", display: "inline-block" }}>
         <button onClick={() => setShowDropdown(prev => !prev)}>Options</button>
 
@@ -29,7 +27,7 @@ export default function Toolbar({ onReset, onUndo }) {
           <div className={`dropdown ${showDropdown ? "show" : ""}`}>
             <div className="dropdown-item">Tema değiştir</div>
             <div className="dropdown-item">Zorluk seviyesi</div>
-            <div className="dropdown-item">dil seçenekleri</div>
+            <div className="dropdown-item">Dil seçenekleri</div>
           </div>
         )}
       </div>

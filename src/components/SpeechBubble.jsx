@@ -5,7 +5,7 @@ const SpeechBubble = ({ hintText }) => {
 
   useEffect(() => {
     const timer = setTimeout(() => {
-      setText("1 dakika sonra başka bir şey söylüyorum!");
+      setText("Sizi yenebileceğimi düşünüyorum");
     }, 60000);
 
     return () => clearTimeout(timer);

@@ -1,90 +1,260 @@
-// src/components/ChessboardComponent.jsx
 import React, { useState, useEffect, useImperativeHandle, forwardRef } from "react";
 import { Chessboard } from "react-chessboard";
 import { Chess } from "chess.js";
 
 const ChessboardComponent = forwardRef((props, ref) => {
   const [game, setGame] = useState(new Chess());
+  const [history, setHistory] = useState([]);
+  const [whiteScore, setWhiteScore] = useState(0);
+  const [blackScore, setBlackScore] = useState(0);
 
-  // Ref ile dışarıya metodlar expose ediyoruz
+  console.log("ChessboardComponent render - Turn:", game.turn(), "History length:", history.length);
+
   useImperativeHandle(ref, () => ({
     resetGame,
     undoMove,
-    getHistory: () => props.history || [],
+    getHistory: () => history,
+    getFen: () => game.fen(),
+    getGame: () => game,
   }));
 
-  // Reset game
   function resetGame() {
-    setGame(new Chess());
-    if (props.onHistoryChange) props.onHistoryChange([]); // Parent history sıfırlanır
+    console.log("Reset game called");
+    const newGame = new Chess();
+    setGame(newGame);
+    setHistory([]);
+    setWhiteScore(0);
+    setBlackScore(0);
+    if (props.onHistoryChange) props.onHistoryChange([]);
   }
 
-  // Undo move
   function undoMove() {
+    console.log("Undo move called");
     const move = game.undo();
     if (!move) return;
-
-    setGame(new Chess(game.fen()));
-    if (props.onHistoryChange) {
-      props.onHistoryChange(prevHistory => prevHistory.slice(0, -1));
-    }
+    const newGame = new Chess(game.fen());
+    setGame(newGame);
+    setHistory(prev => prev.slice(0, -1));
+    recalcScores(newGame);
   }
 
-  // Taş bırakıldığında
-  function onDrop(sourceSquare, targetSquare, piece) {
-    const gameCopy = new Chess(game.fen());
+  function updateScoresForMove(move) {
+    if (!move.captured) return;
+    const pieceValues = { p:1, n:3, b:3, r:5, q:9, k:0 };
+    const value = pieceValues[move.captured.toLowerCase()] || 0;
+    if (move.color === 'w') setWhiteScore(prev => prev + value);
+    else setBlackScore(prev => prev + value);
+  }
 
-    try {
-      const move = gameCopy.move({
-        from: sourceSquare,
-        to: targetSquare,
-        promotion: "q",
-      });
-
-      if (!move) return false;
-
-      setGame(gameCopy);
-
-      // Parent history’i güncelle
-      if (props.onHistoryChange) {
-        props.onHistoryChange(prevHistory => [
-          ...prevHistory,
-          { from: sourceSquare, to: targetSquare, san: move.san },
-        ]);
+  function recalcScores(gameObj) {
+    const moves = gameObj.history({ verbose: true });
+    let wScore = 0, bScore = 0;
+    const pieceValues = { p:1, n:3, b:3, r:5, q:9, k:0 };
+    moves.forEach(move => {
+      if (move.captured) {
+        if (move.color === 'w') wScore += pieceValues[move.captured.toLowerCase()] || 0;
+        else bScore += pieceValues[move.captured.toLowerCase()] || 0;
       }
+    });
+    setWhiteScore(wScore);
+    setBlackScore(bScore);
+  }
 
+  function evaluateMove(move) {
+    const pieceValues = { p:1, n:3, b:3, r:5, q:9, k:0 };
+    let score = 0;
+    if (move.captured) score += pieceValues[move.captured.toLowerCase()] + 5;
+    const centerSquares = ["d4","d5","e4","e5"];
+    if (centerSquares.includes(move.to)) score += 1;
+    const developmentSquares = ["b1","g1","b8","g8"];
+    if (developmentSquares.includes(move.from)) score += 0.5;
+    return score;
+  }
+
+  // Basitleştirilmiş onDrop
+  function onDrop(source, target) {
+    console.log("onDrop called:", source, "to", target, "Current turn:", game.turn());
+    
+    try {
+      const gameCopy = new Chess(game.fen());
+      const move = gameCopy.move({ from: source, to: target, promotion: 'q' });
+      
+      if (!move) {
+        console.log("Invalid move:", source, "to", target);
+        return false;
+      }
+      
+      console.log("Valid move made:", move.san);
+      
+      // State güncellemeleri
+      setGame(gameCopy);
+      setHistory(prev => {
+        const newHistory = [...prev, { 
+          from: source, 
+          to: target, 
+          san: move.san, 
+          fen: gameCopy.fen() 
+        }];
+        console.log("History updated, new length:", newHistory.length);
+        if (props.onHistoryChange) props.onHistoryChange(newHistory);
+        return newHistory;
+      });
+      
+      updateScoresForMove(move);
+      checkGameOver(gameCopy);
+      
       return true;
+      
     } catch (error) {
-      console.error("Hamle hatası:", error);
+      console.error("Error in onDrop:", error);
       return false;
     }
   }
 
-  // Component mount olduğunda Chess.js testi
+  // Basitleştirilmiş aiMove
+  function aiMove() {
+    console.log("aiMove called, current turn:", game.turn());
+    
+    try {
+      if (game.turn() === 'w') {
+        console.log("AI won't move - it's white's turn");
+        return;
+      }
+
+      if (game.isGameOver()) {
+        console.log("AI won't move - game is over");
+        return;
+      }
+
+      const gameCopy = new Chess(game.fen());
+      const moves = gameCopy.moves({ verbose: true });
+      
+      if (moves.length === 0) {
+        console.log("No moves available for AI");
+        return;
+      }
+
+      // En iyi hamleyi seç
+      let bestScore = -Infinity;
+      let bestMoves = [];
+      
+      moves.forEach(move => {
+        const score = evaluateMove(move);
+        if (score > bestScore) {
+          bestScore = score;
+          bestMoves = [move];
+        } else if (score === bestScore) {
+          bestMoves.push(move);
+        }
+      });
+
+      const selectedMove = bestMoves[Math.floor(Math.random() * bestMoves.length)];
+      const moveResult = gameCopy.move(selectedMove.san);
+      
+      if (moveResult) {
+        console.log("AI made move:", moveResult.san);
+        
+        setGame(gameCopy);
+        setHistory(prev => {
+          const newHistory = [...prev, { 
+            from: selectedMove.from, 
+            to: selectedMove.to, 
+            san: moveResult.san, 
+            fen: gameCopy.fen() 
+          }];
+          console.log("AI move - History updated, new length:", newHistory.length);
+          if (props.onHistoryChange) props.onHistoryChange(newHistory);
+          return newHistory;
+        });
+        
+        updateScoresForMove(moveResult);
+        checkGameOver(gameCopy);
+      }
+      
+    } catch (error) {
+      console.error("Error in aiMove:", error);
+    }
+  }
+
+  function checkGameOver(gameObj) {
+    try {
+      if (gameObj.isCheckmate()) {
+        const winner = gameObj.turn() === 'w' ? 'Black' : 'White';
+        setTimeout(() => alert(`Oyun bitti! Kazanan: ${winner}`), 100);
+      } else if (gameObj.isStalemate()) {
+        setTimeout(() => alert("Oyun pat! Berabere."), 100);
+      } else if (gameObj.isDraw()) {
+        setTimeout(() => alert("Oyun berabere (draw)."), 100);
+      }
+    } catch (error) {
+      console.error("Error in checkGameOver:", error);
+      // Fallback - eski metodları dene
+      try {
+        if (gameObj.in_checkmate && gameObj.in_checkmate()) {
+          const winner = gameObj.turn() === 'w' ? 'Black' : 'White';
+          setTimeout(() => alert(`Oyun bitti! Kazanan: ${winner}`), 100);
+        } else if (gameObj.in_stalemate && gameObj.in_stalemate()) {
+          setTimeout(() => alert("Oyun pat! Berabere."), 100);
+        } else if (gameObj.in_draw && gameObj.in_draw()) {
+          setTimeout(() => alert("Oyun berabere (draw)."), 100);
+        }
+      } catch (fallbackError) {
+        console.error("Both new and old Chess.js methods failed:", fallbackError);
+      }
+    }
+  }
+
+  // Basitleştirilmiş useEffect
   useEffect(() => {
-    console.log("ChessboardComponent mounted");
-    console.log("Chess.js version:", Chess.version || "version bilgisi yok");
-    console.log("Initial game position:", game.fen());
-  }, []);
+    console.log("useEffect triggered - History length:", history.length, "Turn:", game.turn());
+    
+    // İlk hamle değilse ve siyahın sırası ise AI oynasın
+    const shouldAiMove = history.length > 0 && game.turn() === 'b';
+    
+    let gameOver = false;
+    try {
+      gameOver = game.isGameOver();
+    } catch (e) {
+      try {
+        gameOver = game.game_over && game.game_over();
+      } catch (e2) {
+        gameOver = false;
+      }
+    }
+    
+    if (shouldAiMove && !gameOver) {
+      console.log("Setting timer for AI move");
+      const timer = setTimeout(() => {
+        console.log("Timer fired, calling aiMove");
+        aiMove();
+      }, 500);
+      
+      return () => {
+        console.log("Cleaning up timer");
+        clearTimeout(timer);
+      };
+    }
+  }, [history.length]); // Sadece history.length'i takip et
 
   return (
-    <div className="chess-container">
-      <Chessboard
-        position={game.fen()}
-        onPieceDrop={onDrop}
-        onPieceDragBegin={(piece, sourceSquare) =>
-          console.log(`Taş alındı: ${piece} from ${sourceSquare}`)
-        }
-        onPieceDragEnd={(piece, sourceSquare) =>
-          console.log(`Taş bırakıldı: ${piece} from ${sourceSquare}`)
-        }
-        boardOrientation="white"
-        boardWidth={560}
-        animationDuration={200}
-        arePiecesDraggable={true}
-        arePremovesAllowed={false}
-        snapToCursor={true}
-      />
+    <div>
+      <div className="chess-container">
+        <Chessboard
+          position={game.fen()}
+          onPieceDrop={onDrop}
+          boardOrientation="white"
+          boardWidth={560}
+          animationDuration={200}
+          arePiecesDraggable={true}
+          arePremovesAllowed={false}
+          snapToCursor={true}
+        />
+      </div>
+      <div className="scoreboard">
+        Puanlar - White: {whiteScore} | Black: {blackScore}
+        <br />
+        <small>Turn: {game.turn()}, Moves: {history.length}</small>
+      </div>
     </div>
   );
 });
