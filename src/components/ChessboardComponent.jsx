@@ -29,13 +29,67 @@ const ChessboardComponent = forwardRef((props, ref) => {
   }
 
   function undoMove() {
-    console.log("Undo move called");
-    const move = game.undo();
-    if (!move) return;
-    const newGame = new Chess(game.fen());
+    console.log("=== UNDO MOVE START ===");
+    console.log("Current turn:", game.turn());
+    console.log("History length:", history.length);
+    console.log("Current FEN:", game.fen());
+    
+    // En az bir hamle yoksa çık
+    if (history.length === 0) {
+      console.log("No moves to undo");
+      return;
+    }
+    
+    let targetFen;
+    let newHistoryLength;
+    
+    // Eğer şu an beyazın sırası ise, son hamle AI'nın hamlesi
+    // İki hamle geri al: AI + Oyuncu
+    if (game.turn() === 'w' && history.length >= 2) {
+      console.log("Undoing 2 moves (AI + Player)");
+      // 2 hamle önceki pozisyona git
+      if (history.length >= 2) {
+        targetFen = history[history.length - 3]?.fen || new Chess().fen(); // 3 hamle öncesi
+        newHistoryLength = history.length - 2;
+      } else {
+        targetFen = new Chess().fen(); // Başlangıç pozisyonu
+        newHistoryLength = 0;
+      }
+    } 
+    // Eğer şu an siyahın sırası ise, sadece oyuncunun hamlesini geri al
+    else {
+      console.log("Undoing 1 move (Player only)");
+      // 1 hamle önceki pozisyona git
+      if (history.length >= 1) {
+        targetFen = history[history.length - 2]?.fen || new Chess().fen(); // 2 hamle öncesi
+        newHistoryLength = history.length - 1;
+      } else {
+        targetFen = new Chess().fen(); // Başlangıç pozisyonu
+        newHistoryLength = 0;
+      }
+    }
+    
+    console.log("Target FEN:", targetFen);
+    console.log("New history length will be:", newHistoryLength);
+    
+    // Yeni game instance'ı oluştur
+    const newGame = new Chess(targetFen);
+    console.log("Created newGame with target FEN:", newGame.fen());
+    console.log("New game turn:", newGame.turn());
+    
+    // State'i güncelle
     setGame(newGame);
-    setHistory(prev => prev.slice(0, -1));
+    
+    setHistory(prev => {
+      const newHistory = prev.slice(0, newHistoryLength);
+      console.log("History updated from", prev.length, "to", newHistory.length);
+      if (props.onHistoryChange) props.onHistoryChange(newHistory);
+      return newHistory;
+    });
+    
+    console.log("Recalculating scores...");
     recalcScores(newGame);
+    console.log("=== UNDO MOVE END ===");
   }
 
   function updateScoresForMove(move) {
