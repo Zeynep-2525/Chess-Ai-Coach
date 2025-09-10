@@ -5,24 +5,24 @@ import Toolbar from "../components/Toolbar";
 import ChessboardComponent from "../components/ChessboardComponent";
 import PreviousMoves from "../components/PreviousMoves";
 import SpeechBubble from "../components/SpeechBubble";
+import OpeningsPanel from "../components/OpeningsPanel";
 import avatar from "../images/avataaars.png";
 
 function Home() {
   const [showSplash, setShowSplash] = useState(true);
   const [history, setHistory] = useState([]);
   const [hint, setHint] = useState(null);
+  const [selectedOpening, setSelectedOpening] = useState(null);
   const chessRef = useRef(null);
+  const [theme, setTheme] = useState("dark");
 
   useEffect(() => {
     const timer = setTimeout(() => setShowSplash(false), 3000);
     return () => clearTimeout(timer);
   }, []);
 
-  if (showSplash) return <SplashScreen />;
-
   const handleHint = async () => {
     if (!chessRef.current) return;
-
     const history = chessRef.current.getHistory();
     const game = chessRef.current.getGame();
     const fen = history.length ? history[history.length - 1].fen : game.fen();
@@ -41,27 +41,37 @@ function Home() {
   };
 
   return (
-    <div className="main-screen">
+    <div className={`main-screen ${theme}`} style={{ overflow: "visible" }}>
+      {/* Toolbar */}
       <Toolbar
         onReset={() => chessRef.current?.resetGame()}
         onUndo={() => chessRef.current?.undoMove()}
         onHint={handleHint}
+        onToggleTheme={() => setTheme(prev => prev === "dark" ? "light" : "dark")}
+        onSelectOpening={setSelectedOpening}
       />
 
-      <div className="game-area">
-        {/* Chess board sola */}
+      {/* Oyun ve AI */}
+      <div className="game-area" style={{ display: "flex", flexWrap: "wrap", gap: "20px", marginTop: "16px" }}>
         <div className="board-container">
           <ChessboardComponent ref={chessRef} onHistoryChange={setHistory} />
         </div>
 
-        {/* AI coach sağ üstte, balon solunda */}
         <div className="ai-coach">
           <SpeechBubble hintText={hint} />
           <img src={avatar} alt="avatar" className="image" />
         </div>
       </div>
 
+      {/* Önceki hamleler */}
       <PreviousMoves history={history} />
+
+      {/* Seçilen açılış paneli */}
+      {selectedOpening && (
+        <div className="openings-panel" style={{ marginTop: "20px" }}>
+          <OpeningsPanel selectedOpening={selectedOpening} />
+        </div>
+      )}
     </div>
   );
 }

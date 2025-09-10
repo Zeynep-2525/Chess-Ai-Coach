@@ -35,8 +35,9 @@ def get_hint(board: BoardState):
     try:
         model = genai.GenerativeModel("gemini-1.5-flash")  # ücretsiz hızlı model
         response = model.generate_content( f"Bu satranç pozisyonunu analiz et: {board.fen}. "
-    "Sadece en iyi hamleyi açık şekilde ve kısa olarak söyle, "
-    "örn. 'At g1-f3'. Ardından kısaca neden iyi olduğunu bir cümleyle ekle.")
+    "1. En iyi hamleyi satranç notasyonuyla açık ve kısa yaz (örn. 'At g1-f3'). "
+    "2. Bu hamlenin neden güçlü olduğunu bir-iki cümleyle açıkla. "
+    "3. Bu hamleye bağlı olarak oyuncunun izleyebileceği olası stratejik planı kısaca özetle.")
         ai_text = response.text
         return {"hint": ai_text}
     except Exception as e:

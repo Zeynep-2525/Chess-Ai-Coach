@@ -5,8 +5,39 @@ body,
   width: 100vw;
   margin: 0;
   padding: 0;
-  background-color: #000;
-  overflow: hidden;
+  overflow: visible;
+}
+
+.main-screen.dark {
+  background-color: black;
+  color: white;
+}
+
+.main-screen.light {
+  background-color: rgb(220, 204, 204);
+  color: black;
+}
+
+/* DARK THEME */
+.main-screen.dark .scoreboard {
+  color: white;
+}
+.main-screen.dark .scrollable-bar {
+  border-top: 1px solid white;
+}
+.main-screen.dark .move {
+  color: white;
+}
+
+/* LIGHT THEME */
+.main-screen.light .scoreboard {
+  color: black;
+}
+.main-screen.light .scrollable-bar {
+  border-top: 1px solid black;
+}
+.main-screen.light .move {
+  color: black;
 }
 
 .main-screen {
@@ -14,8 +45,6 @@ body,
   flex-direction: column;
   height: 100vh;
   padding: 16px;
-  background-color: black;
-  color: white;
   overflow: visible;
 }
 
@@ -45,12 +74,12 @@ body,
   flex-direction: row;
   /* avatarın sağda, balonun solda olması için row */
   align-items: flex-start;
-  position: absolute;
+  position: relative;
   top: 20px;
   right: 20px;
   gap: 10px;
   /* balon ile avatar arası boşluk */
-  z-index: 10;
+  z-index: 20;
   padding-right: 50px;
 }
 
@@ -67,15 +96,28 @@ body,
 }
 
 .speech-bubble {
+  position: relative; /* kuyruk için gerekli */
   padding: 10px 15px;
   border-radius: 15px;
   background-color: rgba(92, 83, 83, 0.65);
   color: white;
-  word-wrap: break-word;  /* kelimeler taşarsa alt satıra geç */
-  white-space: normal;    /* tek satır zorlamasını kaldır */
+  word-wrap: break-word;
+  white-space: normal;
   display: inline-block;
   text-align: left;
 }
+
+/* kuyruk */
+.speech-bubble::after {
+  content: "";
+  position: absolute;
+  top: 10px;       /* balonun üstünden 10px aşağı */
+  right: -13px;        
+  border-width: 10px;
+  border-style: solid;
+  border-color: rgba(92, 83, 83, 0.65) transparent transparent transparent;
+}
+
 
 
 .splash-screen {
@@ -129,6 +171,13 @@ body,
   gap: 20px;
   margin-bottom: 24px;
   /* üst çizgiye değmesin diye artırıldı */
+
+  position: sticky;   /* burası önemli */
+  top: 0;             /* üstten sıfır konumda sabitle */
+  background-color: #1f1e1e85;  /* sayfa scroll olduğunda üstü transparan kalır */
+  z-index: 1000;      /* üstte görünmesi için */
+  padding: 8px 0;     /* biraz boşluk bırak */
+   box-shadow: 0 2px 5px rgba(0,0,0,0.3);
 }
 
 .toolbar button {
@@ -174,7 +223,7 @@ body,
   margin: 0 auto;
   margin-top: 3px;
   /* toolbar’dan biraz daha uzak */
-  border-top: 1px solid white;
+  border-top: 1px ;
   display: flex;
   overflow-x: auto;
   /* yana scroll */
@@ -202,7 +251,6 @@ body,
 }
 
 .move {
-  color: white;
   font-size: 16px;
   padding: 8px 16px;
   /* kutular daha büyük */
@@ -254,4 +302,24 @@ body,
   font-size: 16px;
   text-align: center; /* ortalar */
   margin-bottom: 0px;
+}
+
+.openings-panel {
+  margin-top: 20px;
+  display: flex;
+  gap: 40px;
+  flex-wrap: wrap;
+  align-items: flex-start;
+}
+.openings-panel .description {
+  flex: 1;
+  min-width: 300px;
+}
+.openings-panel .chessboard {
+  flex: 1;
+  min-width: 300px;
+}
+.openings-panel {
+  position: relative; /* veya static */
+  z-index: 1;
 }
