@@ -1,4 +1,4 @@
-fastapi==0.111.3
+fastapi==0.116.1
 uvicorn==0.23.2
 python-dotenv==1.1.1
 chess==1.11.2
