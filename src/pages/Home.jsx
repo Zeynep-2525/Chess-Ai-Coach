@@ -28,11 +28,11 @@ function Home() {
     const fen = history.length ? history[history.length - 1].fen : game.fen();
 
     try {
-      const response = await fetch("http://127.0.0.1:8000/hint", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ fen }),
-      });
+     const response = await fetch("https://chess-ai-coach.onrender.com/hint", {
+  method: "POST",
+  headers: { "Content-Type": "application/json" },
+  body: JSON.stringify({ fen }),
+   });
       const data = await response.json();
       setHint(data.hint);
     } catch (error) {
