@@ -8,6 +8,19 @@ import google.generativeai as genai
 # FastAPI objesi ÖNCE
 app = FastAPI()
 
+origins = [
+    "https://chess-ai-coach.netlify.app",  # frontend URL
+    "http://localhost:5173",               # local test için
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,  # sadece izin verilen domain’ler
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 # CORS middleware HEMEN SONRA
 app.add_middleware(
     CORSMiddleware,
