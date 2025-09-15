@@ -3,7 +3,6 @@ import { Chessboard } from "react-chessboard";
 import { Chess } from "chess.js";
 import moveSoundFile from "../assets/sounds/move.mp3";
 
-
 const ChessboardComponent = forwardRef((props, ref) => {
   const [game, setGame] = useState(new Chess());
   const [history, setHistory] = useState([]);
@@ -16,9 +15,10 @@ const ChessboardComponent = forwardRef((props, ref) => {
 
   const minutes = Math.floor(time / 60);
   const seconds = time % 60;
-  const formattedTime = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+  const formattedTime = `${minutes.toString().padStart(2, "0")}:${seconds
+    .toString()
+    .padStart(2, "0")}`;
   const moveSound = new Audio(moveSoundFile);
-
 
   useImperativeHandle(ref, () => ({
     resetGame,
@@ -28,14 +28,13 @@ const ChessboardComponent = forwardRef((props, ref) => {
     getGame: () => game,
   }));
 
-  // Timer useEffect
+  // Timer
   useEffect(() => {
     if (timerActive) {
-      timerRef.current = setInterval(() => setTime(prev => prev + 1), 1000);
+      timerRef.current = setInterval(() => setTime((prev) => prev + 1), 1000);
     } else {
       clearInterval(timerRef.current);
     }
-
     return () => clearInterval(timerRef.current);
   }, [timerActive]);
 
@@ -56,7 +55,7 @@ const ChessboardComponent = forwardRef((props, ref) => {
     let targetFen;
     let newHistoryLength;
 
-    if (game.turn() === 'w' && history.length >= 2) {
+    if (game.turn() === "w" && history.length >= 2) {
       targetFen = history[history.length - 3]?.fen || new Chess().fen();
       newHistoryLength = history.length - 2;
     } else {
@@ -66,7 +65,7 @@ const ChessboardComponent = forwardRef((props, ref) => {
 
     const newGame = new Chess(targetFen);
     setGame(newGame);
-    setHistory(prev => {
+    setHistory((prev) => {
       const newHistory = prev.slice(0, newHistoryLength);
       if (props.onHistoryChange) props.onHistoryChange(newHistory);
       return newHistory;
@@ -78,17 +77,18 @@ const ChessboardComponent = forwardRef((props, ref) => {
     if (!move.captured) return;
     const pieceValues = { p: 1, n: 3, b: 3, r: 5, q: 9, k: 0 };
     const value = pieceValues[move.captured.toLowerCase()] || 0;
-    if (move.color === 'w') setWhiteScore(prev => prev + value);
-    else setBlackScore(prev => prev + value);
+    if (move.color === "w") setWhiteScore((prev) => prev + value);
+    else setBlackScore((prev) => prev + value);
   }
 
   function recalcScores(gameObj) {
     const moves = gameObj.history({ verbose: true });
-    let wScore = 0, bScore = 0;
+    let wScore = 0,
+      bScore = 0;
     const pieceValues = { p: 1, n: 3, b: 3, r: 5, q: 9, k: 0 };
-    moves.forEach(move => {
+    moves.forEach((move) => {
       if (move.captured) {
-        if (move.color === 'w') wScore += pieceValues[move.captured.toLowerCase()] || 0;
+        if (move.color === "w") wScore += pieceValues[move.captured.toLowerCase()] || 0;
         else bScore += pieceValues[move.captured.toLowerCase()] || 0;
       }
     });
@@ -109,12 +109,15 @@ const ChessboardComponent = forwardRef((props, ref) => {
 
   function onDrop(source, target) {
     const gameCopy = new Chess(game.fen());
-    const move = gameCopy.move({ from: source, to: target, promotion: 'q' });
+    const move = gameCopy.move({ from: source, to: target, promotion: "q" });
     if (!move) return false;
 
     setGame(gameCopy);
-    setHistory(prev => {
-      const newHistory = [...prev, { from: source, to: target, san: move.san, fen: gameCopy.fen() }];
+    setHistory((prev) => {
+      const newHistory = [
+        ...prev,
+        { from: source, to: target, san: move.san, fen: gameCopy.fen() },
+      ];
       if (props.onHistoryChange) props.onHistoryChange(newHistory);
 
       moveSound.currentTime = 0;
@@ -124,14 +127,13 @@ const ChessboardComponent = forwardRef((props, ref) => {
     });
     updateScoresForMove(move);
 
-    // Timer başlat (ilk hamle)
     if (!timerActive && history.length === 0) setTimerActive(true);
 
     return true;
   }
 
   function aiMove() {
-    if (game.turn() === 'w' || game.isGameOver()) return;
+    if (game.turn() === "w" || game.isGameOver()) return;
 
     const gameCopy = new Chess(game.fen());
     const moves = gameCopy.moves({ verbose: true });
@@ -140,9 +142,9 @@ const ChessboardComponent = forwardRef((props, ref) => {
     let bestScore = -Infinity;
     let bestMoves = [];
 
-    moves.forEach(move => {
+    moves.forEach((move) => {
       const score = evaluateMove(move);
-      if (score > bestScore) bestMoves = [move], bestScore = score;
+      if (score > bestScore) bestMoves = [move], (bestScore = score);
       else if (score === bestScore) bestMoves.push(move);
     });
 
@@ -151,13 +153,16 @@ const ChessboardComponent = forwardRef((props, ref) => {
 
     if (moveResult) {
       setGame(gameCopy);
-      setHistory(prev => {
-        const newHistory = [...prev, { from: selectedMove.from, to: selectedMove.to, san: moveResult.san, fen: gameCopy.fen() }];
+      setHistory((prev) => {
+        const newHistory = [
+          ...prev,
+          { from: selectedMove.from, to: selectedMove.to, san: moveResult.san, fen: gameCopy.fen() },
+        ];
         if (props.onHistoryChange) props.onHistoryChange(newHistory);
 
-         moveSound.currentTime = 0;
-      moveSound.play();
-      
+        moveSound.currentTime = 0;
+        moveSound.play();
+
         return newHistory;
       });
       updateScoresForMove(moveResult);
@@ -166,16 +171,15 @@ const ChessboardComponent = forwardRef((props, ref) => {
 
   function checkGameOver(gameObj) {
     if (gameObj.isCheckmate()) {
-      const winner = gameObj.turn() === 'w' ? 'Black' : 'White';
+      const winner = gameObj.turn() === "w" ? "Black" : "White";
       setTimeout(() => alert(`Oyun bitti! Kazanan: ${winner}`), 100);
     } else if (gameObj.isStalemate() || gameObj.isDraw()) {
       setTimeout(() => alert("Oyun berabere."), 100);
     }
   }
 
-  // AI move useEffect
   useEffect(() => {
-    const shouldAiMove = history.length > 0 && game.turn() === 'b';
+    const shouldAiMove = history.length > 0 && game.turn() === "b";
     if (shouldAiMove && !game.isGameOver()) {
       const timer = setTimeout(() => aiMove(), 500);
       return () => clearTimeout(timer);
@@ -189,21 +193,30 @@ const ChessboardComponent = forwardRef((props, ref) => {
           position={game.fen()}
           onPieceDrop={onDrop}
           boardOrientation="white"
-          boardWidth={560}
           animationDuration={200}
           arePiecesDraggable={true}
           arePremovesAllowed={false}
           snapToCursor={true}
+          customBoardStyle={{
+            width: "100%",
+            maxWidth: "560px",
+            aspectRatio: "1 / 1",
+          }}
         />
       </div>
 
-      <div className="game-info" style={{ display: 'flex', justifyContent: 'space-between', marginTop: '10px' }}>
+      <div
+        className="game-info"
+        style={{ display: "flex", justifyContent: "space-between", marginTop: "10px" }}
+      >
         <div className="scoreboard">
           Puanlar - White: {whiteScore} | Black: {blackScore}
           <br />
-          <small>Turn: {game.turn()}, Moves: {history.length}</small>
+          <small>
+            Turn: {game.turn()}, Moves: {history.length}
+          </small>
         </div>
-        <div className="timer" style={{ cursor: 'pointer' }} onClick={() => setTimerActive(prev => !prev)}>
+        <div className="timer" style={{ cursor: "pointer" }} onClick={() => setTimerActive((prev) => !prev)}>
           {formattedTime}
         </div>
       </div>
