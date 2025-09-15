@@ -11,7 +11,7 @@ app = FastAPI()
 # CORS middleware HEMEN SONRA
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],   # önce test için herkese aç
+    allow_origins=["https://<your-netlify-url>"], 
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
