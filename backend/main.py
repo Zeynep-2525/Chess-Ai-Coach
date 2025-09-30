@@ -36,7 +36,7 @@ def hint_options():
 @app.post("/hint")
 def get_hint(board: BoardState):
     try:
-        model = genai.GenerativeModel("gemini-1.5-flash")
+        model = genai.GenerativeModel("gemini-1.5-flash-latest")
         response = model.generate_content(
             f"Bu satranç pozisyonunu analiz et: {board.fen}. "
             "1. En iyi hamleyi satranç notasyonuyla kısa yaz. "
