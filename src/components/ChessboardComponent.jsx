@@ -13,12 +13,13 @@ const ChessboardComponent = forwardRef((props, ref) => {
   const [timerActive, setTimerActive] = useState(false);
   const timerRef = useRef(null);
 
+  const moveSoundRef = useRef(new Audio(moveSoundFile));
+
   const minutes = Math.floor(time / 60);
   const seconds = time % 60;
   const formattedTime = `${minutes.toString().padStart(2, "0")}:${seconds
     .toString()
     .padStart(2, "0")}`;
-  const moveSound = new Audio(moveSoundFile);
 
   useImperativeHandle(ref, () => ({
     resetGame,
@@ -38,6 +39,13 @@ const ChessboardComponent = forwardRef((props, ref) => {
     return () => clearInterval(timerRef.current);
   }, [timerActive]);
 
+  // Parent component’e history güncellemesini bildir
+  useEffect(() => {
+    if (props.onHistoryChange) {
+      props.onHistoryChange(history);
+    }
+  }, [history]);
+
   function resetGame() {
     const newGame = new Chess();
     setGame(newGame);
@@ -46,30 +54,16 @@ const ChessboardComponent = forwardRef((props, ref) => {
     setBlackScore(0);
     setTime(0);
     setTimerActive(false);
-    if (props.onHistoryChange) props.onHistoryChange([]);
   }
 
   function undoMove() {
     if (history.length === 0) return;
 
-    let targetFen;
-    let newHistoryLength;
+    const lastFen = history[history.length - 2]?.fen || new Chess().fen();
+    const newGame = new Chess(lastFen);
 
-    if (game.turn() === "w" && history.length >= 2) {
-      targetFen = history[history.length - 3]?.fen || new Chess().fen();
-      newHistoryLength = history.length - 2;
-    } else {
-      targetFen = history[history.length - 2]?.fen || new Chess().fen();
-      newHistoryLength = history.length - 1;
-    }
-
-    const newGame = new Chess(targetFen);
     setGame(newGame);
-    setHistory((prev) => {
-      const newHistory = prev.slice(0, newHistoryLength);
-      if (props.onHistoryChange) props.onHistoryChange(newHistory);
-      return newHistory;
-    });
+    setHistory((prev) => prev.slice(0, -1));
     recalcScores(newGame);
   }
 
@@ -107,25 +101,24 @@ const ChessboardComponent = forwardRef((props, ref) => {
     return score;
   }
 
+  function playMoveSound() {
+    moveSoundRef.current.currentTime = 0;
+    moveSoundRef.current.play();
+  }
+
   function onDrop(source, target) {
     const gameCopy = new Chess(game.fen());
     const move = gameCopy.move({ from: source, to: target, promotion: "q" });
     if (!move) return false;
 
     setGame(gameCopy);
-    setHistory((prev) => {
-      const newHistory = [
-        ...prev,
-        { from: source, to: target, san: move.san, fen: gameCopy.fen() },
-      ];
-      if (props.onHistoryChange) props.onHistoryChange(newHistory);
+    setHistory((prev) => [
+      ...prev,
+      { from: source, to: target, san: move.san, fen: gameCopy.fen() },
+    ]);
 
-      moveSound.currentTime = 0;
-      moveSound.play();
-
-      return newHistory;
-    });
     updateScoresForMove(move);
+    playMoveSound();
 
     if (!timerActive && history.length === 0) setTimerActive(true);
 
@@ -153,28 +146,12 @@ const ChessboardComponent = forwardRef((props, ref) => {
 
     if (moveResult) {
       setGame(gameCopy);
-      setHistory((prev) => {
-        const newHistory = [
-          ...prev,
-          { from: selectedMove.from, to: selectedMove.to, san: moveResult.san, fen: gameCopy.fen() },
-        ];
-        if (props.onHistoryChange) props.onHistoryChange(newHistory);
-
-        moveSound.currentTime = 0;
-        moveSound.play();
-
-        return newHistory;
-      });
+      setHistory((prev) => [
+        ...prev,
+        { from: selectedMove.from, to: selectedMove.to, san: moveResult.san, fen: gameCopy.fen() },
+      ]);
       updateScoresForMove(moveResult);
-    }
-  }
-
-  function checkGameOver(gameObj) {
-    if (gameObj.isCheckmate()) {
-      const winner = gameObj.turn() === "w" ? "Black" : "White";
-      setTimeout(() => alert(`Oyun bitti! Kazanan: ${winner}`), 100);
-    } else if (gameObj.isStalemate() || gameObj.isDraw()) {
-      setTimeout(() => alert("Oyun berabere."), 100);
+      playMoveSound();
     }
   }
 
@@ -216,7 +193,11 @@ const ChessboardComponent = forwardRef((props, ref) => {
             Turn: {game.turn()}, Moves: {history.length}
           </small>
         </div>
-        <div className="timer" style={{ cursor: "pointer" }} onClick={() => setTimerActive((prev) => !prev)}>
+        <div
+          className="timer"
+          style={{ cursor: "pointer" }}
+          onClick={() => setTimerActive((prev) => !prev)}
+        >
           {formattedTime}
         </div>
       </div>

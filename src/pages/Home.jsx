@@ -21,24 +21,32 @@ function Home() {
     return () => clearTimeout(timer);
   }, []);
 
+  // Prod-ready fetch için async handler
   const handleHint = async () => {
     if (!chessRef.current) return;
-    const history = chessRef.current.getHistory();
+    const chessHistory = chessRef.current.getHistory();
     const game = chessRef.current.getGame();
-    const fen = history.length ? history[history.length - 1].fen : game.fen();
+    const fen = chessHistory.length ? chessHistory[chessHistory.length - 1].fen : game.fen();
 
     try {
-     const response = await fetch("https://chess-ai-coach.onrender.com/hint", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ fen }),
-   });
+      const response = await fetch("https://chess-ai-coach.onrender.com/hint", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ fen }),
+      });
+
+      if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
       const data = await response.json();
-      setHint(data.hint);
+      setHint(data.hint || "No hint available.");
     } catch (error) {
       console.error("Hint alırken hata:", error);
+      setHint("Hint alınamadı. Lütfen tekrar deneyin.");
     }
   };
+
+  if (showSplash) {
+    return <SplashScreen />;
+  }
 
   return (
     <div className={`main-screen ${theme}`} style={{ overflow: "visible" }}>
@@ -47,12 +55,15 @@ function Home() {
         onReset={() => chessRef.current?.resetGame()}
         onUndo={() => chessRef.current?.undoMove()}
         onHint={handleHint}
-        onToggleTheme={() => setTheme(prev => prev === "dark" ? "light" : "dark")}
+        onToggleTheme={() => setTheme(prev => (prev === "dark" ? "light" : "dark"))}
         onSelectOpening={setSelectedOpening}
       />
 
       {/* Oyun ve AI */}
-      <div className="game-area" style={{ display: "flex", flexWrap: "wrap", gap: "20px", marginTop: "16px" }}>
+      <div
+        className="game-area"
+        style={{ display: "flex", flexWrap: "wrap", gap: "20px", marginTop: "16px" }}
+      >
         <div className="board-container">
           <ChessboardComponent ref={chessRef} onHistoryChange={setHistory} />
         </div>
