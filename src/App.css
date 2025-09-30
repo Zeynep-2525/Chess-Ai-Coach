@@ -97,7 +97,13 @@ body,
   white-space: normal;
   display: inline-block;
   text-align: left;
+   max-width: 300px;       /* çok geniş olmaması için */
+  max-height: 250px;      /* uzun metinlerde scroll */
+  overflow-y: auto;       /* uzun yanıtlar scroll ile gösterilir */
+  font-size: 14px;
+  line-height: 1.5;
 }
+
 
 .speech-bubble::after {
   content: "";

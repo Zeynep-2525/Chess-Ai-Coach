@@ -7,6 +7,7 @@ import PreviousMoves from "../components/PreviousMoves";
 import SpeechBubble from "../components/SpeechBubble";
 import OpeningsPanel from "../components/OpeningsPanel";
 import avatar from "../images/avataaars.png";
+import ReactMarkdown from "react-markdown";
 
 function Home() {
   const [showSplash, setShowSplash] = useState(true);

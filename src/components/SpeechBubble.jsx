@@ -1,4 +1,5 @@
-import React, { useState , useEffect } from "react";
+import React, { useState, useEffect } from "react";
+import ReactMarkdown from "react-markdown";
 
 const SpeechBubble = ({ hintText }) => {
   const [text, setText] = useState("Merhaba! Benimle satranç oynamaya hazır mısın?");
@@ -19,8 +20,11 @@ const SpeechBubble = ({ hintText }) => {
 
   return (
     <div className="speech-bubble-container">
-      <div className="speech-bubble">{text}</div>
+      <div className="speech-bubble">
+        <ReactMarkdown>{text}</ReactMarkdown>
+      </div>
     </div>
   );
 };
+
 export default SpeechBubble;
