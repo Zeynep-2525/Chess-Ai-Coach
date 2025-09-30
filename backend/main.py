@@ -5,26 +5,19 @@ from dotenv import load_dotenv
 import os
 import google.generativeai as genai
 
-# FastAPI objesi ÖNCE
+# FastAPI objesi
 app = FastAPI()
 
+# Prod ve local frontend URL'leri
 origins = [
-    "https://chess-ai-coach.netlify.app",  # frontend URL
-    "http://localhost:5173",               # local test için
+    "https://chess-ai-coach.netlify.app",  # prod frontend
+    "http://localhost:5173",               # local test
 ]
 
+# Tek middleware yeterli
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,  # sadece izin verilen domain’ler
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
-
-# CORS middleware HEMEN SONRA
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["https://<your-netlify-url>"], 
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -34,7 +27,7 @@ app.add_middleware(
 load_dotenv()
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 
-# Gemini client ayarı
+# Gemini client
 genai.configure(api_key=GEMINI_API_KEY)
 
 class BoardState(BaseModel):
@@ -46,11 +39,13 @@ def get_hint(board: BoardState):
     print("API Key var mı:", GEMINI_API_KEY[:10] if GEMINI_API_KEY else "None")
 
     try:
-        model = genai.GenerativeModel("gemini-1.5-flash")  # ücretsiz hızlı model
-        response = model.generate_content( f"Bu satranç pozisyonunu analiz et: {board.fen}. "
-    "1. En iyi hamleyi satranç notasyonuyla açık ve kısa yaz (örn. 'At g1-f3'). "
-    "2. Bu hamlenin neden güçlü olduğunu bir-iki cümleyle açıkla. "
-    "3. Bu hamleye bağlı olarak oyuncunun izleyebileceği olası stratejik planı kısaca özetle.")
+        model = genai.GenerativeModel("gemini-1.5-flash")
+        response = model.generate_content(
+            f"Bu satranç pozisyonunu analiz et: {board.fen}. "
+            "1. En iyi hamleyi satranç notasyonuyla açık ve kısa yaz (örn. 'At g1-f3'). "
+            "2. Bu hamlenin neden güçlü olduğunu bir-iki cümleyle açıkla. "
+            "3. Bu hamleye bağlı olarak oyuncunun izleyebileceği olası stratejik planı kısaca özetle."
+        )
         ai_text = response.text
         return {"hint": ai_text}
     except Exception as e:
