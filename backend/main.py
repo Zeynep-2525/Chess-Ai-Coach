@@ -5,16 +5,19 @@ from dotenv import load_dotenv
 import os
 import google.generativeai as genai
 
-# FastAPI objesi
 app = FastAPI()
 
-# Prod ve local frontend URL'leri
+load_dotenv()
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+genai.configure(api_key=GEMINI_API_KEY)
+
+# Prod ve local frontend URL
 origins = [
     "https://chess-ai-coach.netlify.app",  # prod frontend
     "http://localhost:5173",               # local test
 ]
 
-# Tek middleware yeterli
+# Tek middleware, preflight ve tüm method’ları kapsıyor
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
@@ -23,33 +26,23 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# .env yükle
-load_dotenv()
-GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-
-# Gemini client
-genai.configure(api_key=GEMINI_API_KEY)
-
 class BoardState(BaseModel):
     fen: str
 
+@app.options("/hint")  # Preflight request için explicit endpoint
+def hint_options():
+    return {}
+
 @app.post("/hint")
 def get_hint(board: BoardState):
-    print("Gelen FEN:", board.fen)
-    print("API Key var mı:", GEMINI_API_KEY[:10] if GEMINI_API_KEY else "None")
-
     try:
         model = genai.GenerativeModel("gemini-1.5-flash")
         response = model.generate_content(
             f"Bu satranç pozisyonunu analiz et: {board.fen}. "
-            "1. En iyi hamleyi satranç notasyonuyla açık ve kısa yaz (örn. 'At g1-f3'). "
-            "2. Bu hamlenin neden güçlü olduğunu bir-iki cümleyle açıkla. "
-            "3. Bu hamleye bağlı olarak oyuncunun izleyebileceği olası stratejik planı kısaca özetle."
+            "1. En iyi hamleyi satranç notasyonuyla kısa yaz. "
+            "2. Hamlenin neden güçlü olduğunu bir-iki cümleyle açıkla. "
+            "3. Bu hamleye bağlı olası stratejik planı özetle."
         )
-        ai_text = response.text
-        return {"hint": ai_text}
+        return {"hint": response.text}
     except Exception as e:
-        print("HATA:", str(e))
         return {"error": str(e)}
-
-print("Loaded API key:", GEMINI_API_KEY[:10] if GEMINI_API_KEY else "None")
